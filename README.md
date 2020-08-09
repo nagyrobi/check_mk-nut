@@ -1,4 +1,4 @@
-check_mk-plugins
-================
+check_mk-plugin-nut
+===================
 
-my plugins for check_mk
+works in my setup with check_mk raw version 1.6.0p15.cre
