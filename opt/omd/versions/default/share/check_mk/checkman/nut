@@ -18,7 +18,7 @@ inventory:
   If there is at least one supported value available for a UPS one service is
   inventorized.
 
-[parameters]
+[parameters]:
  The warning/critical levels for each supported numeric values are parameterized.
 
  examples:
