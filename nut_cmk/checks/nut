@@ -47,7 +47,7 @@ nut_output_default_values = (245, 250)
 
 nut_battery_default_levels = (10, 5)
 nut_battery_charge_default_levels = (90, 85)
-nut_battery_runtime_default_levels = (1200, 900)
+nut_battery_runtime_default_levels = (20, 10)
 
 nut_input_voltage_fault_default_levels = (155,  160)
 nut_input_default_levels = (245, 250)
