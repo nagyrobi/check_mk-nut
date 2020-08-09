@@ -2,9 +2,8 @@
 
 if which upsc > /dev/null 2>&1 ; then
     echo '<<<nut>>>'
-    for ups in $(upsc -l 2>/dev/null)
+    for ups in $(upsc -l > /dev/stdout 2> /dev/null)
     do
-	    upsc $ups| sed "s,^,$ups ,"
+        upsc $ups > /dev/stdout 2> /dev/null | sed "s,^,$ups ,"
     done
 fi
-
