@@ -7,3 +7,4 @@ if which upsc > /dev/null 2>&1 ; then
         upsc $ups > /dev/stdout 2> /dev/null | sed "s,^,$ups ,"
     done
 fi
+
