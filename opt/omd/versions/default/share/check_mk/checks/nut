@@ -40,6 +40,41 @@
 #vt650 ups.temperature: 30.0
 #vt650 ups.type: offline / line interactive
 #vt650 ups.vendorid: ffff
+#my-nut-ups battery.charge: 100
+#my-nut-ups battery.charge.low: 10
+#my-nut-ups battery.charge.warning: 50
+#my-nut-ups battery.runtime: 8760
+#my-nut-ups battery.runtime.low: 120
+#my-nut-ups battery.type: PbAc
+#my-nut-ups battery.voltage: 54.8
+#my-nut-ups battery.voltage.nominal: 24.0
+#my-nut-ups device.mfr: American Power Conversion 
+#my-nut-ups device.model: Smart-UPS 3000
+#my-nut-ups device.serial: AC9243412300  
+#my-nut-ups device.type: ups
+#my-nut-ups driver.name: usbhid-ups
+#my-nut-ups driver.parameter.offdelay: 180
+#my-nut-ups driver.parameter.ondelay: 240
+#my-nut-ups driver.parameter.pollfreq: 30
+#my-nut-ups driver.parameter.pollinterval: 2
+#my-nut-ups driver.parameter.port: auto
+#my-nut-ups driver.parameter.synchronous: no
+#my-nut-ups driver.version: 2.7.4
+#my-nut-ups driver.version.data: APC HID 0.96
+#my-nut-ups driver.version.internal: 0.41
+#my-nut-ups ups.beeper.status: enabled
+#my-nut-ups ups.delay.shutdown: 180
+#my-nut-ups ups.firmware: UPS 08.3 / ID=18
+#my-nut-ups ups.mfr: American Power Conversion 
+#my-nut-ups ups.mfr.date: 2013/03/09
+#my-nut-ups ups.model: Smart-UPS 3000
+#my-nut-ups ups.productid: 0003
+#my-nut-ups ups.serial: AC9243412300  
+#my-nut-ups ups.status: OL
+#my-nut-ups ups.timer.reboot: -1
+#my-nut-ups ups.timer.shutdown: -1
+#my-nut-ups ups.vendorid: 051d
+
 
 nut_temp_default_values = (35, 40)
 nut_load_default_values = (50, 70)
@@ -167,24 +202,32 @@ def check_nut_device(item, params, info):
 		if len(line) < 3 or line[0] != item:
 			continue
 
-		value = line[2]
+                if len(line) == 4:
+                        value = line[2] + " " + line[3]
+                elif len(line) == 5:
+                        value = line[2] + " " + line[3] + " " + line[4]
+                elif len(line) == 6:
+                        value = line[2] + " " + line[3] + " " + line[4] + " " + line[5]
+                else:
+		        value = line[2]
+                
 		field = line[1]
 		if field in [ 'device.type:',
-						'ups.productid:',
-						'ups.type:',
-						'ups.vendorid:',]:
+                                                'device.mfr:',
+                                                'device.model:',
+                                                'device.serial:',]:
 			for val, lab, txt in [
-					  (value,  'device.type:',		'Device Type'),
-					  (value,  'ups.productid:',	'Product ID'),
-					  (value,  'ups.type:',			'UPS Type'),
-					  (value,  'ups.vendorid:',		'Vendor ID'),
+					  (value,  'device.mfr:',		'Manufacturer'),
+					  (value,  'device.model:',	'Model'),
+					  (value,  'device.serial:',			'Serial'),
+					  (value,  'device.type:',		'Type'),
 				   ]:
 				if field == lab:
 					output.append('%s: %s' % (txt, val))
 				
 	if not output:
 		return (3, 'UNKNOWN - Found no info in nut outout')
-	return (0, "OK - Device Details: %s" % (', '.join(output)))
+	return (0, "OK - %s" % (', '.join(output)))
 	
 	
 
@@ -201,21 +244,25 @@ def check_nut_driver(item, params, info):
 						'driver.parameter.pollinterval:',
 						'driver.parameter.port:',
 						'driver.version:',
+                                                'ups.productid:',
+                                                'ups.vendorid:',
 						'driver.version.internal:',]:
 			for val, lab, txt in [
-					  (value, 'driver.name:',					'Name'),
+					  (value, 'driver.name:',					'Driver Name'),
 					  (value, 'driver.parameter.bus:',			'Parameter Bus'),
 					  (value, 'driver.parameter.pollinterval:',	'Poll Interval'),
 					  (value, 'driver.parameter.port:',			'Port'),
-					  (value, 'driver.version:',				'Version'),
-					  (value, 'driver.version.internal:',		'Internal Version'),
+					  (value, 'driver.version:',				'Ver.'),
+					  (value, 'driver.version.internal:',		'Int. ver.'),
+                                          (value, 'ups.productid:',                            'ProductID'),
+                                          (value, 'ups.vendorid:',                            'VendorID'),
 				   ]:
 				if field == lab:
 					output.append('%s: %s' % (txt, val))
 				
 	if not output:
 		return (3, 'UNKNOWN - Found no info in nut outout')
-	return (0, "OK - Driver Details: %s" % (', '.join(output)))
+	return (0, "OK - %s" % (', '.join(output)))
 
 def check_nut_delay(item, params, info):
 	output   = []
@@ -228,15 +275,15 @@ def check_nut_delay(item, params, info):
 		if field in [ 'ups.delay.shutdown:',
 						'ups.delay.start:',]:
 			for val, lab, txt in [
-					  (value,  'ups.delay.shutdown:',		'Shutdown Delay'),
-					  (value,  'ups.delay.start:',	'Start Delay'),
+					  (value,  'ups.delay.shutdown:',		'Shutdown'),
+					  (value,  'ups.delay.start:',	'Startup'),
 				   ]:
 				if field == lab:
 					output.append('%s: %s' % (txt, val))
 				
 	if not output:
 		return (3, 'UNKNOWN - Found no info in nut outout')
-	return (0, "OK - Device Details: %s" % (', '.join(output)))
+	return (0, "OK - Delay values: %s" % (', '.join(output)))
 	
 
 
@@ -276,11 +323,6 @@ def check_nut_status(item, params, info):
 				return (2, "CRIT - UPS Status is Low Battery (LB)")
 	return (3, "UNKNOWN - UPS Status cannot be determined for %s" % item)
 
-
-
-
-	
-
 # declare the check to Check_MK
 check_info["nut.battery"]			=	(check_nut_battery,				'NUT %s Battery Voltage',		1,	lambda info: inventory_nut("nut.battery", info))
 check_info["nut.battery.charge"]	=	(check_nut_battery_charge,		'NUT %s Battery Charge',		1,	lambda info: inventory_nut("nut.battery.charge", info))
@@ -296,6 +338,3 @@ check_info["nut.temp"]	        	=	(lambda item, params, info: check_nut_value(it
 check_info["nut.beeper"]			=	(check_nut_beeper,				'NUT %s Beeper Status',			0,	lambda info: inventory_nut("nut.beeper", info))
 check_info["nut.delay"]				=	(check_nut_delay,				'NUT %s Delay settings',		0,	lambda info: inventory_nut("nut.delay", info))
 check_info["nut.status"]			=	(check_nut_status,				'NUT %s Status',				0,	lambda info: inventory_nut("nut.status", info))
-
-
-
